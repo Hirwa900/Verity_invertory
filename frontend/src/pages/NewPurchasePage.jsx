@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API = 'http://localhost:5000/api';
+const API = 'https://verity-inventory-backend.onrender.com/api';
 
 function todayStr() {
   return new Date().toISOString().split('T')[0];
@@ -79,7 +79,7 @@ export default function NewPurchasePage() {
     <div className="inner-page">
       <div className="inner-page-card">
         <div className="inner-page-header">
-          <button type="button" className="back-btn" onClick={() => navigate('/dashboard')}>← Dashboard</button>
+          <button type="button" className="back-btn" onClick={() => navigate('/dashboard')}>â† Dashboard</button>
           <h1>New Purchase</h1>
           <p className="page-sub">Record incoming stock. Quantities will be updated automatically.</p>
         </div>
@@ -95,7 +95,7 @@ export default function NewPurchasePage() {
           <div className="items-section">
             <h2 className="items-title">Items Purchased</h2>
             {loadingProducts ? (
-              <p className="loading-msg">Loading products…</p>
+              <p className="loading-msg">Loading productsâ€¦</p>
             ) : (
               <>
                 {items.map((item, index) => {
@@ -110,7 +110,7 @@ export default function NewPurchasePage() {
                             onChange={(e) => handleProductChange(index, e.target.value)}
                             required
                           >
-                            <option value="">— Select product —</option>
+                            <option value="">â€” Select product â€”</option>
                             {products.map((p) => (
                               <option key={p.id} value={p.id}>
                                 {p.name} {p.category_name ? `(${p.category_name})` : ''}
@@ -153,12 +153,12 @@ export default function NewPurchasePage() {
 
                       {product && (
                         <div className="stock-hint">
-                          Current stock: {product.current_quantity} {product.unit || 'pcs'} → After: {product.current_quantity + Number(item.quantity || 0)}
+                          Current stock: {product.current_quantity} {product.unit || 'pcs'} â†’ After: {product.current_quantity + Number(item.quantity || 0)}
                         </div>
                       )}
 
                       {items.length > 1 && (
-                        <button type="button" className="remove-item-btn" onClick={() => removeItem(index)}>✕ Remove</button>
+                        <button type="button" className="remove-item-btn" onClick={() => removeItem(index)}>âœ• Remove</button>
                       )}
                     </div>
                   );
@@ -180,7 +180,7 @@ export default function NewPurchasePage() {
           <div className="form-actions-row">
             <button type="button" className="btn-secondary" onClick={() => navigate('/dashboard')}>Cancel</button>
             <button type="submit" className="btn-primary" disabled={submitting || loadingProducts}>
-              {submitting ? 'Saving…' : 'Record Purchase'}
+              {submitting ? 'Savingâ€¦' : 'Record Purchase'}
             </button>
           </div>
         </form>
@@ -188,3 +188,4 @@ export default function NewPurchasePage() {
     </div>
   );
 }
+

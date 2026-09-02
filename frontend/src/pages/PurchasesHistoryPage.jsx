@@ -1,11 +1,11 @@
-import { useState, useEffect, Fragment } from 'react';
+﻿import { useState, useEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API = 'http://localhost:5000/api';
+const API = 'https://verity-inventory-backend.onrender.com/api';
 
 function fmtDate(d) {
-  if (!d) return '—';
+  if (!d) return 'â€”';
   return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
@@ -48,7 +48,7 @@ export default function PurchasesHistoryPage() {
     <div className="inner-page">
       <div className="inner-page-card wide-card">
         <div className="inner-page-header">
-          <button type="button" className="back-btn" onClick={() => navigate('/dashboard')}>← Dashboard</button>
+          <button type="button" className="back-btn" onClick={() => navigate('/dashboard')}>â† Dashboard</button>
           <div className="header-row-actions">
             <h1>Purchase History</h1>
             <button type="button" className="btn-primary" onClick={() => navigate('/new-purchase')}>+ New Purchase</button>
@@ -59,7 +59,7 @@ export default function PurchasesHistoryPage() {
         <div className="search-bar-row">
           <input
             type="search"
-            placeholder="Search by date or staff name…"
+            placeholder="Search by date or staff nameâ€¦"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="search-input"
@@ -67,7 +67,7 @@ export default function PurchasesHistoryPage() {
           <span className="record-count">{filtered.length} record{filtered.length !== 1 ? 's' : ''}</span>
         </div>
 
-        {loading && <div className="db-loading">Loading…</div>}
+        {loading && <div className="db-loading">Loadingâ€¦</div>}
         {error && <div className="form-error-box">{error}</div>}
 
         {!loading && !error && (
@@ -95,7 +95,7 @@ export default function PurchasesHistoryPage() {
                         <td className="amount-cell">RWF {fmt(p.total_amount)}</td>
                         <td>
                           <button type="button" className="expand-btn" onClick={() => toggleExpand(p.id)}>
-                            {expandedId === p.id ? '▲ Hide' : '▼ View Items'}
+                            {expandedId === p.id ? 'â–² Hide' : 'â–¼ View Items'}
                           </button>
                         </td>
                       </tr>
@@ -119,7 +119,7 @@ export default function PurchasesHistoryPage() {
                                 </tbody>
                               </table>
                             ) : (
-                              <p style={{ margin: '0.75rem 1rem', color: '#6b7280' }}>Loading…</p>
+                              <p style={{ margin: '0.75rem 1rem', color: '#6b7280' }}>Loadingâ€¦</p>
                             )}
                           </td>
                         </tr>
@@ -135,3 +135,4 @@ export default function PurchasesHistoryPage() {
     </div>
   );
 }
+

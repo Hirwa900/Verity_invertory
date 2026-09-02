@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API = 'http://localhost:5000/api';
+const API = 'https://verity-inventory-backend.onrender.com/api';
 
 function fmt(value) {
   return Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function fmtDate(dateStr) {
-  if (!dateStr) return '—';
+  if (!dateStr) return 'â€”';
   return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
@@ -70,46 +70,46 @@ export default function DashboardPage() {
         </div>
         <nav className="sidebar-nav">
           <button type="button" className="nav-item nav-item-active" onClick={() => navigate('/dashboard')}>
-            <span className="nav-icon">📊</span> Dashboard
+            <span className="nav-icon">ðŸ“Š</span> Dashboard
           </button>
           <button type="button" className="nav-item" onClick={() => navigate('/products')}>
-            <span className="nav-icon">📦</span> Products
+            <span className="nav-icon">ðŸ“¦</span> Products
           </button>
           <button type="button" className="nav-item" onClick={() => navigate('/stock')}>
-            <span className="nav-icon">🗄️</span> Stock
+            <span className="nav-icon">ðŸ—„ï¸</span> Stock
           </button>
           <button type="button" className="nav-item" onClick={() => navigate('/new-sale')}>
-            <span className="nav-icon">🛒</span> New Sale
+            <span className="nav-icon">ðŸ›’</span> New Sale
           </button>
           <button type="button" className="nav-item" onClick={() => navigate('/sales')}>
-            <span className="nav-icon">📋</span> Sales History
+            <span className="nav-icon">ðŸ“‹</span> Sales History
           </button>
           <button type="button" className="nav-item" onClick={() => navigate('/new-purchase')}>
-            <span className="nav-icon">📥</span> New Purchase
+            <span className="nav-icon">ðŸ“¥</span> New Purchase
           </button>
           <button type="button" className="nav-item" onClick={() => navigate('/purchases')}>
-            <span className="nav-icon">🧾</span> Purchases
+            <span className="nav-icon">ðŸ§¾</span> Purchases
           </button>
           <button type="button" className="nav-item" onClick={() => navigate('/reports')}>
-            <span className="nav-icon">📈</span> Reports
+            <span className="nav-icon">ðŸ“ˆ</span> Reports
           </button>
           {user.role === 'admin' && (
             <>
               <div className="nav-divider" />
               <button type="button" className="nav-item" onClick={() => navigate('/add-product')}>
-                <span className="nav-icon">➕</span> Add Product
+                <span className="nav-icon">âž•</span> Add Product
               </button>
               <button type="button" className="nav-item" onClick={() => navigate('/add-category')}>
-                <span className="nav-icon">🏷️</span> Categories
+                <span className="nav-icon">ðŸ·ï¸</span> Categories
               </button>
               <button type="button" className="nav-item" onClick={() => navigate('/stock-adjustment')}>
-                <span className="nav-icon">⚙️</span> Stock Adjust
+                <span className="nav-icon">âš™ï¸</span> Stock Adjust
               </button>
               <button type="button" className="nav-item" onClick={() => navigate('/add-expense')}>
-                <span className="nav-icon">💸</span> Add Expense
+                <span className="nav-icon">ðŸ’¸</span> Add Expense
               </button>
               <button type="button" className="nav-item" onClick={() => navigate('/users')}>
-                <span className="nav-icon">👥</span> Manage Users
+                <span className="nav-icon">ðŸ‘¥</span> Manage Users
               </button>
             </>
           )}
@@ -137,7 +137,7 @@ export default function DashboardPage() {
           <button type="button" className="btn-primary" onClick={() => navigate('/new-sale')}>+ New Sale</button>
         </div>
 
-        {loading && <div className="db-loading">Loading dashboard…</div>}
+        {loading && <div className="db-loading">Loading dashboardâ€¦</div>}
         {error && <div className="db-error">{error} <button type="button" onClick={load} className="link-btn">Retry</button></div>}
 
         {data && (
@@ -187,7 +187,7 @@ export default function DashboardPage() {
               <div className="db-card">
                 <div className="db-card-header">
                   <h2>Recent Sales</h2>
-                  <button type="button" className="link-btn" onClick={() => navigate('/sales')}>View all →</button>
+                  <button type="button" className="link-btn" onClick={() => navigate('/sales')}>View all â†’</button>
                 </div>
                 {data.recent_sales.length === 0 ? (
                   <p className="empty-msg">No sales recorded yet.</p>
@@ -211,7 +211,7 @@ export default function DashboardPage() {
               <div className="db-card">
                 <div className="db-card-header">
                   <h2>Recent Purchases</h2>
-                  <button type="button" className="link-btn" onClick={() => navigate('/purchases')}>View all →</button>
+                  <button type="button" className="link-btn" onClick={() => navigate('/purchases')}>View all â†’</button>
                 </div>
                 {data.recent_purchases.length === 0 ? (
                   <p className="empty-msg">No purchases recorded yet.</p>
@@ -237,11 +237,11 @@ export default function DashboardPage() {
               {/* Low Stock Alerts */}
               <div className="db-card">
                 <div className="db-card-header">
-                  <h2>⚠️ Low Stock Alerts</h2>
-                  <button type="button" className="link-btn" onClick={() => navigate('/stock')}>View stock →</button>
+                  <h2>âš ï¸ Low Stock Alerts</h2>
+                  <button type="button" className="link-btn" onClick={() => navigate('/stock')}>View stock â†’</button>
                 </div>
                 {data.low_stock_products.length === 0 ? (
-                  <p className="empty-msg" style={{ color: '#16a34a' }}>✅ All products are well stocked!</p>
+                  <p className="empty-msg" style={{ color: '#16a34a' }}>âœ… All products are well stocked!</p>
                 ) : (
                   <table className="mini-table">
                     <thead><tr><th>Product</th><th>Category</th><th>Qty</th><th>Min</th></tr></thead>
@@ -249,7 +249,7 @@ export default function DashboardPage() {
                       {data.low_stock_products.map((p) => (
                         <tr key={p.id}>
                           <td>{p.name}</td>
-                          <td>{p.category_name || '—'}</td>
+                          <td>{p.category_name || 'â€”'}</td>
                           <td>
                             <span className={`status-badge ${p.current_quantity === 0 ? 'badge-red' : 'badge-yellow'}`}>
                               {p.current_quantity}
@@ -266,8 +266,8 @@ export default function DashboardPage() {
               {/* Top Selling Products */}
               <div className="db-card">
                 <div className="db-card-header">
-                  <h2>🏆 Top Products (This Month)</h2>
-                  <button type="button" className="link-btn" onClick={() => navigate('/reports')}>Reports →</button>
+                  <h2>ðŸ† Top Products (This Month)</h2>
+                  <button type="button" className="link-btn" onClick={() => navigate('/reports')}>Reports â†’</button>
                 </div>
                 {data.top_products.length === 0 ? (
                   <p className="empty-msg">No sales this month yet.</p>
@@ -292,7 +292,7 @@ export default function DashboardPage() {
             <div className="db-card">
               <div className="db-card-header">
                 <h2>Recent Stock Movements</h2>
-                <button type="button" className="link-btn" onClick={() => navigate('/stock')}>View all →</button>
+                <button type="button" className="link-btn" onClick={() => navigate('/stock')}>View all â†’</button>
               </div>
               {data.recent_movements.length === 0 ? (
                 <p className="empty-msg">No stock movements yet.</p>
@@ -319,3 +319,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

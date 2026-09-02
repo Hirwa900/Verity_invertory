@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -16,7 +16,7 @@ function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post('https://verity-inventory-backend.onrender.com/api/auth/login', {
         email,
         password,
       });
@@ -38,7 +38,7 @@ function LoginPage() {
       <div className="login-brand-panel">
         <div className="login-brand-inner">
           <div className="login-brand-logo">
-            <span className="login-brand-symbol">🏭</span>
+            <span className="login-brand-symbol">ðŸ­</span>
           </div>
           <div className="login-brand-name">Verity Inventory</div>
           <h1 className="login-brand-tagline">
@@ -69,7 +69,7 @@ function LoginPage() {
         <div className="login-form-wrap">
           <div className="login-mobile-head">
             <div className="login-brand-logo sm">
-              <span className="login-brand-symbol">🏭</span>
+              <span className="login-brand-symbol">ðŸ­</span>
             </div>
             <div className="login-brand-name">Verity Inventory</div>
           </div>
@@ -81,7 +81,7 @@ function LoginPage() {
             <div className="login-field">
               <label htmlFor="email">Email address</label>
               <div className="login-input-wrap">
-                <span className="login-input-icon">✉</span>
+                <span className="login-input-icon">âœ‰</span>
                 <input
                   id="email"
                   type="email"
@@ -106,7 +106,7 @@ function LoginPage() {
                 </button>
               </div>
               <div className="login-input-wrap">
-                <span className="login-input-icon">🔒</span>
+                <span className="login-input-icon">ðŸ”’</span>
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -122,7 +122,7 @@ function LoginPage() {
             {error && <div className="login-error">{error}</div>}
 
             <button type="submit" className="login-submit" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? 'Signing inâ€¦' : 'Sign in'}
             </button>
           </form>
 
@@ -137,3 +137,4 @@ function LoginPage() {
 }
 
 export default LoginPage;
+

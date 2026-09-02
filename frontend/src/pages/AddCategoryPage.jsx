@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -21,7 +21,7 @@ function AddCategoryPage() {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/categories',
+        'https://verity-inventory-backend.onrender.com/api/categories',
         { name },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -44,7 +44,7 @@ function AddCategoryPage() {
     <div className="page dashboard-page">
       <div className="card auth-card">
         <button type="button" className="secondary-button" onClick={() => navigate('/dashboard')}>
-          ← Back to Dashboard
+          â† Back to Dashboard
         </button>
         <h1>Add Category</h1>
         <form onSubmit={handleSubmit} className="entity-form">
@@ -60,3 +60,4 @@ function AddCategoryPage() {
 }
 
 export default AddCategoryPage;
+
