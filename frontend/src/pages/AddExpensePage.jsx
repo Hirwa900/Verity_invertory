@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API from '../api';
 
 function AddExpensePage() {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ function AddExpensePage() {
 
     try {
       await axios.post(
-        '/api/expenses',
+        `${API}/expenses`,
         {
           title: form.title,
           category: form.category,

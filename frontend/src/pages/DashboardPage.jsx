@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
-const API = '/api';
+import API from '../api';
 
 function fmt(value) {
   return Number(value || 0).toLocaleString('en-US', {

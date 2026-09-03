@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API from '../api';
 
 function AddCategoryPage() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ function AddCategoryPage() {
 
     try {
       const response = await axios.post(
-        '/api/categories',
+        `${API}/categories`,
         { name },
         { headers: { Authorization: `Bearer ${token}` } }
       );

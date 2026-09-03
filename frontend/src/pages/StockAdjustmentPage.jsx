@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API from '../api';
 
 function StockAdjustmentPage() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ function StockAdjustmentPage() {
 
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('/api/products', {
+        const response = await axios.get(`${API}/products`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProducts(response.data);
@@ -52,7 +53,7 @@ function StockAdjustmentPage() {
 
     try {
       await axios.post(
-        '/api/stock/adjustment',
+        `${API}/stock/adjustment`,
         {
           product_id: Number(form.product_id),
           quantity: Number(form.quantity),
