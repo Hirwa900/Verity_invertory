@@ -1,8 +1,8 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API = 'https://verity-inventory-backend.onrender.com/api';
+const API = '/api';
 
 function UsersPage() {
   const navigate = useNavigate();
@@ -100,7 +100,7 @@ function UsersPage() {
           <div>
             <div className="product-header-actions">
               <button type="button" className="secondary-button" onClick={() => navigate('/dashboard')}>
-                â† Back to Dashboard
+                ← Back to Dashboard
               </button>
             </div>
             <h1>Users</h1>
@@ -155,7 +155,7 @@ function UsersPage() {
 
             {formError && <p className="form-error">{formError}</p>}
             <button type="submit" disabled={submitting}>
-              {submitting ? 'Creatingâ€¦' : 'Create User'}
+              {submitting ? 'Creating…' : 'Create User'}
             </button>
           </form>
         </div>
@@ -192,7 +192,7 @@ function UsersPage() {
                           <td>{user.email}</td>
                           <td>{user.role}</td>
                           <td>{user.is_active ? 'Active' : 'Inactive'}</td>
-                          <td>{user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB') : 'â€”'}</td>
+                          <td>{user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB') : '—'}</td>
                         </tr>
                       ))
                     )}

@@ -1,8 +1,8 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API = 'https://verity-inventory-backend.onrender.com/api';
+const API = '/api';
 
 function todayStr() {
   return new Date().toISOString().split('T')[0];
@@ -73,7 +73,7 @@ export default function NewSalePage() {
     <div className="inner-page">
       <div className="inner-page-card">
         <div className="inner-page-header">
-          <button type="button" className="back-btn" onClick={() => navigate('/dashboard')}>â† Dashboard</button>
+          <button type="button" className="back-btn" onClick={() => navigate('/dashboard')}>← Dashboard</button>
           <h1>New Sale</h1>
           <p className="page-sub">Search for a product to see its price, then record the sale.</p>
         </div>
@@ -89,7 +89,7 @@ export default function NewSalePage() {
           <div className="items-section">
             <h2 className="items-title">Sale Items</h2>
             {loadingProducts ? (
-              <p className="loading-msg">Loading productsâ€¦</p>
+              <p className="loading-msg">Loading products…</p>
             ) : (
               <>
                 {items.map((item, index) => {
@@ -105,7 +105,7 @@ export default function NewSalePage() {
                             onChange={(e) => handleProductChange(index, e.target.value)}
                             required
                           >
-                            <option value="">â€” Select product â€”</option>
+                            <option value="">— Select product —</option>
                             {products.map((p) => (
                               <option key={p.id} value={p.id}>
                                 {p.name} {p.category_name ? `(${p.category_name})` : ''}
@@ -129,14 +129,14 @@ export default function NewSalePage() {
                         <div className="field-group">
                           <label>Sell Price</label>
                           <div className="price-display">
-                            {product ? `RWF ${Number(product.selling_price).toLocaleString()}` : 'â€”'}
+                            {product ? `RWF ${Number(product.selling_price).toLocaleString()}` : '—'}
                           </div>
                         </div>
 
                         <div className="field-group">
                           <label>Subtotal</label>
                           <div className="price-display subtotal">
-                            {product ? `RWF ${(product.selling_price * item.quantity).toLocaleString()}` : 'â€”'}
+                            {product ? `RWF ${(product.selling_price * item.quantity).toLocaleString()}` : '—'}
                           </div>
                         </div>
                       </div>
@@ -144,13 +144,13 @@ export default function NewSalePage() {
                       {product && (
                         <div className={`stock-hint ${!stockOk ? 'stock-hint-warn' : ''}`}>
                           {stockOk
-                            ? `âœ“ ${product.current_quantity} in stock`
-                            : `âš  Only ${product.current_quantity} in stock!`}
+                            ? `✓ ${product.current_quantity} in stock`
+                            : `⚠ Only ${product.current_quantity} in stock!`}
                         </div>
                       )}
 
                       {items.length > 1 && (
-                        <button type="button" className="remove-item-btn" onClick={() => removeItem(index)}>âœ• Remove</button>
+                        <button type="button" className="remove-item-btn" onClick={() => removeItem(index)}>✕ Remove</button>
                       )}
                     </div>
                   );
@@ -172,7 +172,7 @@ export default function NewSalePage() {
           <div className="form-actions-row">
             <button type="button" className="btn-secondary" onClick={() => navigate('/dashboard')}>Cancel</button>
             <button type="submit" className="btn-primary" disabled={submitting || loadingProducts}>
-              {submitting ? 'Savingâ€¦' : 'Record Sale'}
+              {submitting ? 'Saving…' : 'Record Sale'}
             </button>
           </div>
         </form>

@@ -1,8 +1,8 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API = 'https://verity-inventory-backend.onrender.com/api';
+const API = '/api';
 
 const PERIODS = [
   { key: 'daily', label: 'Today' },
@@ -52,7 +52,7 @@ export default function ReportsPage() {
     <div className="inner-page">
       <div className="inner-page-card wide-card">
         <div className="inner-page-header">
-          <button type="button" className="back-btn" onClick={() => navigate('/dashboard')}>â† Dashboard</button>
+          <button type="button" className="back-btn" onClick={() => navigate('/dashboard')}>← Dashboard</button>
           <h1>Reports</h1>
           <p className="page-sub">View sales performance, revenue, and profit by period.</p>
         </div>
@@ -92,14 +92,14 @@ export default function ReportsPage() {
           </div>
         )}
 
-        {loading && <div className="db-loading">Generating reportâ€¦</div>}
+        {loading && <div className="db-loading">Generating report…</div>}
         {error && <div className="form-error-box">{error}</div>}
 
         {report && (
           <>
             <div className="report-period-label">
               {report.startDate && report.endDate && report.startDate !== report.endDate
-                ? `${report.startDate} â†’ ${report.endDate}`
+                ? `${report.startDate} → ${report.endDate}`
                 : report.date || report.startDate}
             </div>
 

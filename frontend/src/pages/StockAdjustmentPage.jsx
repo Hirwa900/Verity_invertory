@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -20,7 +20,7 @@ function StockAdjustmentPage() {
 
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('https://verity-inventory-backend.onrender.com/api/products', {
+        const response = await axios.get('/api/products', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProducts(response.data);
@@ -52,7 +52,7 @@ function StockAdjustmentPage() {
 
     try {
       await axios.post(
-        'https://verity-inventory-backend.onrender.com/api/stock/adjustment',
+        '/api/stock/adjustment',
         {
           product_id: Number(form.product_id),
           quantity: Number(form.quantity),
@@ -74,7 +74,7 @@ function StockAdjustmentPage() {
     <div className="page dashboard-page">
       <div className="card auth-card">
         <button type="button" className="secondary-button" onClick={() => navigate('/dashboard')}>
-          â† Back to Dashboard
+          ← Back to Dashboard
         </button>
         <h1>Stock Adjustment</h1>
         <form onSubmit={handleSubmit} className="entity-form">

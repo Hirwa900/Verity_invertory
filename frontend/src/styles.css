@@ -1,6 +1,6 @@
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    ROOT TOKENS
-───────────────────────────────────── */
+????????????????????????????????????? */
 :root {  --bg: #f0f4f8;
   --card: #ffffff;
   --text: #0f172a;
@@ -27,9 +27,9 @@ body {
   line-height: 1.6;
 }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    ROUTE LOADING SPINNER
-───────────────────────────────────── */
+????????????????????????????????????? */
 .route-loader {
   position: fixed;
   inset: 0;
@@ -55,9 +55,9 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    DASHBOARD LAYOUT (sidebar + main)
-───────────────────────────────────── */
+????????????????????????????????????? */
 .db-layout {
   display: flex;
   min-height: 100vh;
@@ -67,7 +67,7 @@ body {
 .db-sidebar {
   width: 240px;
   min-height: 100vh;
-  background: var(--sidebar-bg);
+  background: linear-gradient(180deg, #0f172a 0%, #16233f 100%);
   display: flex;
   flex-direction: column;
   position: sticky;
@@ -89,13 +89,14 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
   color: white;
   display: grid;
   place-items: center;
   font-weight: 800;
   font-size: 1rem;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 }
 
 .brand-name {
@@ -140,8 +141,10 @@ body {
 }
 
 .nav-item-active {
-  background: rgba(37,99,235,0.2);
-  color: #93c5fd;
+  background: linear-gradient(90deg, rgba(37,99,235,0.3) 0%, rgba(37,99,235,0.1) 100%);
+  color: #bfdbfe;
+  border-left: 3px solid var(--primary);
+  font-weight: 600;
 }
 
 .nav-icon { font-size: 1rem; }
@@ -262,6 +265,13 @@ body {
   border-radius: 14px;
   padding: 1.25rem 1.5rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15,23,42,0.08);
+  border-color: #cbd5e1;
 }
 
 .stat-blue { border-left: 4px solid var(--primary); }
@@ -294,17 +304,22 @@ body {
 }
 
 .qbtn {
-  padding: 0.4rem 0.75rem;
+  padding: 0.45rem 0.85rem;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   background: white;
   color: var(--text);
   font-size: 0.8rem;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
 }
 
-.qbtn:hover { background: #f1f5f9; }
+.qbtn:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: var(--primary);
+  transform: translateY(-1px);
+}
 
 /* Dashboard row */
 .db-row {
@@ -319,6 +334,12 @@ body {
   border-radius: 14px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.db-card:hover {
+  box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+  border-color: #cbd5e1;
 }
 
 .db-card-header {
@@ -410,9 +431,9 @@ body {
 .badge-purple { background: #ede9fe; color: #5b21b6; }
 .badge-gray { background: #f1f5f9; color: #475569; }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    INNER PAGES (forms, history, stock)
-───────────────────────────────────── */
+????????????????????????????????????? */
 .inner-page {
   min-height: 100vh;
   background: var(--bg);
@@ -430,6 +451,12 @@ body {
   padding: 2rem 2.5rem;
   box-shadow: 0 4px 24px rgba(0,0,0,0.06);
   height: fit-content;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.inner-page-card:hover {
+  box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+  border-color: #cbd5e1;
 }
 
 .wide-card {
@@ -444,6 +471,18 @@ body {
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0.5rem 0 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.inner-page-header h1::before {
+  content: '';
+  width: 5px;
+  height: 1.4rem;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--primary) 0%, #3b82f6 100%);
+  flex-shrink: 0;
 }
 
 .page-sub {
@@ -474,9 +513,9 @@ body {
   flex-wrap: wrap;
 }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    BUTTONS
-───────────────────────────────────── */
+????????????????????????????????????? */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -507,14 +546,19 @@ body {
   border-radius: 10px;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
-.btn-secondary:hover { background: #f8fafc; }
+.btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+}
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    SALE / PURCHASE FORM
-───────────────────────────────────── */
+????????????????????????????????????? */
 .sale-form { display: flex; flex-direction: column; gap: 1.5rem; }
 
 .form-row {
@@ -545,8 +589,11 @@ body {
   font-size: 0.95rem;
   background: #f8fafc;
   color: var(--text);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
+
+.field-group input:hover,
+.field-group select:hover { background: #ffffff; border-color: #cbd5e1; }
 
 .field-group input:focus,
 .field-group select:focus {
@@ -559,7 +606,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: #f8fafc;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.5rem;
@@ -672,9 +719,9 @@ body {
 
 .loading-msg { color: var(--muted); font-size: 0.9rem; }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    REPORTS PAGE
-───────────────────────────────────── */
+????????????????????????????????????? */
 .period-tabs {
   display: flex;
   gap: 0.5rem;
@@ -723,10 +770,18 @@ body {
 }
 
 .report-stat-card {
-  background: #f8fafc;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.25rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.report-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15,23,42,0.07);
+  border-color: #cbd5e1;
 }
 
 .text-blue { color: var(--primary); }
@@ -743,9 +798,9 @@ body {
   color: var(--text);
 }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    HISTORY TABLES (sales / purchases)
-───────────────────────────────────── */
+????????????????????????????????????? */
 .search-bar-row {
   display: flex;
   align-items: center;
@@ -762,7 +817,10 @@ body {
   border-radius: 10px;
   font-size: 0.95rem;
   background: #f8fafc;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
+
+.search-input:hover { background: #ffffff; border-color: #cbd5e1; }
 
 .search-input:focus {
   outline: none;
@@ -772,7 +830,7 @@ body {
 
 .record-count { color: var(--muted); font-size: 0.88rem; white-space: nowrap; }
 
-.history-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+.history-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(15,23,42,0.04); }
 
 .data-table {
   width: 100%;
@@ -788,9 +846,12 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
-  background: #f8fafc;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   border-bottom: 1px solid var(--border);
 }
+
+.data-table th:first-child { border-radius: 12px 0 0 0; }
+.data-table th:last-child { border-radius: 0 12px 0 0; }
 
 .data-table td {
   padding: 0.9rem 1rem;
@@ -846,9 +907,9 @@ body {
 
 .product-name-cell { font-weight: 500; }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    STOCK PAGE
-───────────────────────────────────── */
+????????????????????????????????????? */
 .stock-summary-pills {
   display: flex;
   gap: 0.5rem;
@@ -872,9 +933,9 @@ body {
 .filter-pill-yellow { border-color: #fde68a; color: var(--yellow); }
 .filter-pill-red { border-color: #fecaca; color: var(--red); }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    FORM FEEDBACK
-───────────────────────────────────── */
+????????????????????????????????????? */
 .form-error-box {
   padding: 0.85rem 1.25rem;
   background: #fef2f2;
@@ -894,9 +955,9 @@ body {
   font-weight: 500;
 }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    AUTH PAGES (Login)
-───────────────────────────────────── */
+????????????????????????????????????? */
 .login-page {
   min-height: 100vh;
   display: flex;
@@ -1162,9 +1223,9 @@ body {
   .login-mobile-head { display: flex; }
 }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    EXISTING PAGE OVERRIDES (add-product etc.)
-───────────────────────────────────── */
+????????????????????????????????????? */
 .dashboard-page {
   flex-direction: column;
   align-items: stretch;
@@ -1180,6 +1241,12 @@ body {
   border-radius: 18px;
   padding: 2rem;
   box-shadow: 0 4px 24px rgba(15,23,42,0.06);
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.card:hover {
+  box-shadow: 0 10px 28px rgba(15,23,42,0.08);
+  border-color: #cbd5e1;
 }
 
 .entity-form {
@@ -1198,7 +1265,12 @@ body {
   font-size: 0.95rem;
   background: #f8fafc;
   font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
+
+.entity-form input:hover,
+.entity-form select:hover,
+.entity-form textarea:hover { background: #ffffff; border-color: #cbd5e1; }
 
 .entity-form input:focus,
 .entity-form select:focus,
@@ -1229,7 +1301,7 @@ body {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
   width: 100%;
 }
 
@@ -1271,7 +1343,22 @@ body {
   flex-wrap: wrap;
 }
 
-.product-header h1 { font-size: 1.75rem; font-weight: 700; }
+.product-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.product-header h1::before {
+  content: '';
+  width: 5px;
+  height: 1.4rem;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--primary) 0%, #3b82f6 100%);
+  flex-shrink: 0;
+}
 
 .product-header-actions {
   display: flex;
@@ -1291,12 +1378,15 @@ body {
 }
 
 .product-summary div {
-  background: #f8fafc;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1rem 1.25rem;
   text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
 }
+
+.product-summary div span { color: var(--primary); }
 
 .product-summary span { display: block; font-size: 1.8rem; font-weight: 700; }
 .product-summary p { color: var(--muted); margin-top: 0.25rem; }
@@ -1311,7 +1401,10 @@ body {
   border-radius: 10px;
   font-size: 0.95rem;
   background: #f8fafc;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
+
+.product-search-bar input:hover { background: #ffffff; border-color: #cbd5e1; }
 
 .product-search-bar input:focus {
   outline: none;
@@ -1412,9 +1505,9 @@ body {
 
 .category-link:hover { background: #dbeafe; }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    FORMS (add-product/category/expense)
-───────────────────────────────────── */
+????????????????????????????????????? */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1564,9 +1657,9 @@ body {
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
 
-/* ─────────────────────────────────────
+/* ?????????????????????????????????????
    RESPONSIVE
-───────────────────────────────────── */
+????????????????????????????????????? */
 @media (max-width: 900px) {
   .db-sidebar { display: none; }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }

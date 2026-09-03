@@ -1,8 +1,8 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
-const API = 'https://verity-inventory-backend.onrender.com/api';
+const API = '/api';
 
 function ProductsPage() {
   const navigate = useNavigate();
@@ -192,11 +192,11 @@ function ProductsPage() {
 
   const formatPrice = (value) => {
     if (value === undefined || value === null || value === '') {
-      return 'â€”';
+      return '—';
     }
 
     const amount = Number(value);
-    return Number.isNaN(amount) ? 'â€”' : amount.toFixed(2);
+    return Number.isNaN(amount) ? '—' : amount.toFixed(2);
   };
 
   const isEditing = (productId) => editingProductId === productId && editProduct;
@@ -208,7 +208,7 @@ function ProductsPage() {
           <div>
             <div className="product-header-actions">
               <button type="button" className="secondary-button" onClick={() => navigate('/dashboard')}>
-                â† Back to Dashboard
+                ← Back to Dashboard
               </button>
               <button type="button" className="secondary-button" onClick={() => navigate('/add-product')}>
                 Add Product
@@ -303,7 +303,7 @@ function ProductsPage() {
                                   value={editProduct.category_id}
                                   onChange={(e) => handleEditChange('category_id', e.target.value)}
                                 >
-                                  <option value="">â€” No Category â€”</option>
+                                  <option value="">— No Category —</option>
                                   {categories.map((c) => (
                                     <option key={c.id} value={c.id}>
                                       {c.name}
@@ -326,7 +326,7 @@ function ProductsPage() {
                                       {product.category_name}
                                     </button>
                                   ) : (
-                                    'â€”'
+                                    '—'
                                   )}
                                 </>
                               )}
@@ -340,7 +340,7 @@ function ProductsPage() {
                                   onChange={(e) => handleEditChange('sku', e.target.value)}
                                 />
                               ) : (
-                                product.sku || 'â€”'
+                                product.sku || '—'
                               )}
                             </td>
                             <td>
@@ -354,7 +354,7 @@ function ProductsPage() {
                                   onChange={(e) => handleEditChange('current_quantity', e.target.value)}
                                 />
                               ) : (
-                                product.current_quantity ?? 'â€”'
+                                product.current_quantity ?? '—'
                               )}
                             </td>
                             <td>
@@ -368,7 +368,7 @@ function ProductsPage() {
                                   onChange={(e) => handleEditChange('minimum_quantity', e.target.value)}
                                 />
                               ) : (
-                                product.minimum_quantity ?? 'â€”'
+                                product.minimum_quantity ?? '—'
                               )}
                             </td>
                             <td>
@@ -380,7 +380,7 @@ function ProductsPage() {
                                   onChange={(e) => handleEditChange('unit', e.target.value)}
                                 />
                               ) : (
-                                product.unit || 'â€”'
+                                product.unit || '—'
                               )}
                             </td>
                             <td>

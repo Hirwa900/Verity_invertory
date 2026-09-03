@@ -1,8 +1,8 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API = 'https://verity-inventory-backend.onrender.com/api';
+const API = '/api';
 
 export default function AddProductPage() {
   const navigate = useNavigate();
@@ -87,7 +87,7 @@ export default function AddProductPage() {
       <div className="inner-page-card">
         <div className="inner-page-header">
           <button type="button" className="back-btn" onClick={() => navigate('/products')}>
-            â† Back to Products
+            ← Back to Products
           </button>
           <h1>Add New Product</h1>
           <p className="page-sub">Add a new item to inventory with pricing and category.</p>
@@ -115,7 +115,7 @@ export default function AddProductPage() {
                 value={form.category_id}
                 onChange={handleChange}
               >
-                <option value="">â€” Select Category â€”</option>
+                <option value="">— Select Category —</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -219,7 +219,7 @@ export default function AddProductPage() {
               Cancel
             </button>
             <button type="submit" className="btn-primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving Productâ€¦' : 'Save Product'}
+              {isSubmitting ? 'Saving Product…' : 'Save Product'}
             </button>
           </div>
         </form>

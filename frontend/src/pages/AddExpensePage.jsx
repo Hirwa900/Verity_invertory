@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -26,7 +26,7 @@ function AddExpensePage() {
 
     try {
       await axios.post(
-        'https://verity-inventory-backend.onrender.com/api/expenses',
+        '/api/expenses',
         {
           title: form.title,
           category: form.category,
@@ -47,7 +47,7 @@ function AddExpensePage() {
     <div className="page dashboard-page">
       <div className="card auth-card">
         <button type="button" className="secondary-button" onClick={() => navigate('/dashboard')}>
-          â† Back to Dashboard
+          ← Back to Dashboard
         </button>
         <h1>Add Expense</h1>
         <form onSubmit={handleSubmit} className="entity-form">
