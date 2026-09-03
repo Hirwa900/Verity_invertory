@@ -14,6 +14,7 @@ const stockRoutes = require('./src/routes/stock');
 const expenseRoutes = require('./src/routes/expenses');
 const reportRoutes = require('./src/routes/reports');
 const dashboardRoutes = require('./src/routes/dashboard');
+const emailRoutes = require('./src/routes/email');
 
 const app = express();
 app.use(cors());
@@ -29,6 +30,7 @@ app.use('/api/stock', stockRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/email', emailRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Verity Inventory API is running' });
