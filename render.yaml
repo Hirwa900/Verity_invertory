@@ -1,0 +1,25 @@
+# Render Free blueprint for the VERITY Inventory Express API.
+# Free plan: no billing required on Render, and the backend calls only
+# Firebase's free (Spark) tier services: Authentication + Firestore.
+#
+# NO SECRETS LIVE IN THIS FILE. After Render creates the service, open
+# Dashboard -> verity-inventory-api -> Environment and set:
+#   FIREBASE_SERVICE_ACCOUNT  (required) one-line JSON service-account key
+#                             (Firebase Console -> Project settings -> Service accounts)
+#   CORS_ORIGINS              (optional) extra allowed origins, comma separated
+services:
+  - type: web
+    name: verity-inventory-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: cd functions && npm install
+    startCommand: cd functions && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false

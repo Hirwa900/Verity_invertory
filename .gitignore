@@ -3,9 +3,18 @@ node_modules/
 .env.*
 !.env.example
 !.env.production
+!.env.development
+
+# Firebase CLI local caches/logs
+.firebase/
 
 dist/
 build/
 
 *.log
 npm-debug.log*
+
+# Never commit service-account credentials
+serviceAccount*.json
+*-firebase-adminsdk-*.json
+service-account*.json

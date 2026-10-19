@@ -1,0 +1,17 @@
+{
+  "name": "verity-functions",
+  "private": true,
+  "engines": { "node": "20" },
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test",
+    "start": "node src/server.js",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.3.0"
+  }
+}
