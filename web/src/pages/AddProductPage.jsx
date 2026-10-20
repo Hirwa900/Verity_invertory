@@ -4,6 +4,7 @@ import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { listCategories } from '../lib/collections';
 import { call, friendlyFunctionMessage } from '../lib/functions';
+import { bumpDataRevision } from '../lib/queryCache';
 
 export default function AddProductPage() {
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ export default function AddProductPage() {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
+      bumpDataRevision();
       if (initialQty > 0) {
         await call('adjustStock', {
           productId: productRef.id,

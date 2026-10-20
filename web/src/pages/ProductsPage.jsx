@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import { listProducts, listCategories } from '../lib/collections';
 import { formatRWF } from '../lib/money';
+import { bumpDataRevision } from '../lib/queryCache';
 
 export default function ProductsPage() {
   const navigate = useNavigate();
@@ -80,6 +81,7 @@ export default function ProductsPage() {
         isActive: editProduct.isActive,
       };
       await updateDoc(doc(db, 'verity_products', productId), payload);
+      bumpDataRevision();
       setProducts((prev) => prev.map((p) => (p.id === productId ? { ...p, ...payload } : p)));
       cancelEdit();
       setSuccess('Product updated successfully.');
@@ -93,6 +95,7 @@ export default function ProductsPage() {
     setSuccess(null);
     try {
       await updateDoc(doc(db, 'verity_products', product.id), { isActive: false });
+      bumpDataRevision();
       setProducts((prev) => prev.map((p) => (p.id === product.id ? { ...p, isActive: false } : p)));
       setSuccess(`"${product.name}" deactivated. It no longer appears in sales.`);
     } catch (e) {

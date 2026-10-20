@@ -1,21 +1,30 @@
 import {
-  collection, getDocs, query, where, orderBy, limit as fbLimit, documentId,
+  collection, getDocs, query, where, orderBy, limit as fbLimit, documentId, startAfter,
 } from 'firebase/firestore';
 import { db } from './firebase';
+import { cachedRead } from './queryCache';
 
 const snapList = (snapshot) => snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-export async function listProducts({ activeOnly = false } = {}) {
-  const constraints = [];
-  if (activeOnly) constraints.push(where('isActive', '==', true));
-  constraints.push(orderBy('name'));
-  const snapshot = await getDocs(query(collection(db, 'verity_products'), ...constraints));
-  return snapList(snapshot);
+// Products and categories are read on many pages (Dashboard, Products, Stock,
+// New Sale, New Purchase). They are cached until a business write invalidates
+// the cache or the entry expires; pass { fresh: true } to force a re-read.
+export async function listProducts({ activeOnly = false, fresh = false } = {}) {
+  const key = `products:${activeOnly ? 'active' : 'all'}`;
+  const load = () => {
+    const constraints = [];
+    if (activeOnly) constraints.push(where('isActive', '==', true));
+    constraints.push(orderBy('name'));
+    return getDocs(query(collection(db, 'verity_products'), ...constraints)).then(snapList);
+  };
+  if (fresh) return load();
+  return cachedRead(key, load);
 }
 
-export async function listCategories() {
-  const snapshot = await getDocs(query(collection(db, 'verity_categories'), orderBy('name')));
-  return snapList(snapshot);
+export function listCategories({ fresh = false } = {}) {
+  const load = () => getDocs(query(collection(db, 'verity_categories'), orderBy('name'))).then(snapList);
+  if (fresh) return load();
+  return cachedRead('categories:all', load);
 }
 
 export function salesQueryPlan({ userId = null, activeOnly = true, startDate = null, endDate = null } = {}) {
@@ -25,6 +34,21 @@ export function salesQueryPlan({ userId = null, activeOnly = true, startDate = n
   if (startDate) filters.push({ field: 'businessDate', op: '>=', value: startDate });
   if (endDate) filters.push({ field: 'businessDate', op: '<=', value: endDate });
   return { filters, sort: { field: 'businessDate', direction: 'desc' } };
+}
+
+// Returns one page of sales plus the snapshot needed to fetch the next page.
+// `cursor` is the last document snapshot from the previous page.
+export async function listSalesPage(options = {}, { pageSize = 50, cursor = null } = {}) {
+  const { filters, sort } = salesQueryPlan(options);
+  const constraints = [
+    ...filters.map((f) => where(f.field, f.op, f.value)),
+    orderBy(sort.field, sort.direction),
+    fbLimit(pageSize),
+  ];
+  if (cursor) constraints.push(startAfter(cursor));
+  const snapshot = await getDocs(query(collection(db, 'verity_sales'), ...constraints));
+  const docs = snapshot.docs;
+  return { sales: snapList(snapshot), cursor: docs.length ? docs[docs.length - 1] : null, hasMore: docs.length === pageSize };
 }
 
 export async function listSales(options = {}) {
@@ -37,9 +61,16 @@ export async function listSales(options = {}) {
   return snapList(snapshot);
 }
 
-export async function listPurchases() {
-  const snapshot = await getDocs(query(collection(db, 'verity_purchases'), orderBy('businessDate', 'desc')));
-  return snapList(snapshot);
+export async function listPurchases({ pageSize = 50, cursor = null } = {}) {
+  const constraints = [orderBy('businessDate', 'desc'), fbLimit(pageSize)];
+  if (cursor) constraints.push(startAfter(cursor));
+  const snapshot = await getDocs(query(collection(db, 'verity_purchases'), ...constraints));
+  const docs = snapshot.docs;
+  return {
+    purchases: snapList(snapshot),
+    cursor: docs.length ? docs[docs.length - 1] : null,
+    hasMore: docs.length === pageSize,
+  };
 }
 
 export async function listStockMovements({ productId = null, max = 50 } = {}) {

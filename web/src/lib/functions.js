@@ -1,5 +1,6 @@
 import { httpsCallable } from 'firebase/functions';
 import { auth, functions } from './firebase';
+import { bumpDataRevision } from './queryCache';
 
 export class FunctionError extends Error {
   constructor(code, message) {
@@ -75,6 +76,8 @@ async function callViaApi(name, data) {
     }
     throw new FunctionError(problem?.code || 'internal', problem?.message || 'Request failed.');
   }
+  // A committed business write invalidates cached product/category reads.
+  bumpDataRevision();
   return payload ? payload.data : null;
 }
 
@@ -90,6 +93,7 @@ export async function call(name, data) {
   const callable = httpsCallable(functions, name);
   try {
     const result = await callable(data);
+    bumpDataRevision();
     return result.data;
   } catch (error) {
     throw new FunctionError(error?.code || 'internal', error?.message || 'Request failed.');

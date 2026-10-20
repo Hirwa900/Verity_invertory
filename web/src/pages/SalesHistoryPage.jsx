@@ -1,9 +1,11 @@
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { listSales } from '../lib/collections';
+import { listSalesPage } from '../lib/collections';
 import { call, friendlyFunctionMessage } from '../lib/functions';
 import { formatRWF } from '../lib/money';
+
+const PAGE_SIZE = 50;
 
 function fmtDate(d) {
   if (!d) return '—';
@@ -23,6 +25,9 @@ export default function SalesHistoryPage() {
   const isAdmin = canDeleteSales(user);
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const cursorRef = useRef(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [busyId, setBusyId] = useState(null);
@@ -31,14 +36,39 @@ export default function SalesHistoryPage() {
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState('');
 
-  const load = () => listSales({ userId: isSeller ? user.uid : null, activeOnly: true });
+  const queryOptions = { userId: isSeller ? user.uid : null, activeOnly: true };
+
+  const load = () => listSalesPage(queryOptions, { pageSize: PAGE_SIZE });
+
+  const applyFirstPage = (page) => {
+    setSales(page.sales);
+    cursorRef.current = page.cursor;
+    setHasMore(page.hasMore);
+  };
 
   useEffect(() => {
     load()
-      .then(setSales)
+      .then(applyFirstPage)
       .catch((e) => setError(e?.message || 'Failed to load sales'))
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const loadMore = async () => {
+    if (!cursorRef.current || loadingMore) return;
+    setLoadingMore(true);
+    setError(null);
+    try {
+      const page = await listSalesPage(queryOptions, { pageSize: PAGE_SIZE, cursor: cursorRef.current });
+      setSales((prev) => [...prev, ...page.sales]);
+      cursorRef.current = page.cursor;
+      setHasMore(page.hasMore);
+    } catch (e) {
+      setError(e?.message || 'Failed to load more sales');
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
     if (!deletingSale) return undefined;
@@ -63,15 +93,14 @@ export default function SalesHistoryPage() {
       await call('deleteSale', { saleId: sale.id });
       setDeletingSale(null);
       if (expandedId === sale.id) setExpandedId(null);
-      const refreshed = await load();
-      setSales(refreshed);
+      applyFirstPage(await load());
       setSuccess('Sale deleted and reversed. Stock was restored, and reports, dashboard, and stock views now exclude it.');
     } catch (e) {
       // Also covers a sale already reversed by someone else: refresh so the
       // list reflects the committed state instead of offering a stale row.
       setDeletingSale(null);
       setError(friendlyFunctionMessage(e));
-      load().then(setSales).catch(() => {});
+      load().then(applyFirstPage).catch(() => {});
       if (expandedId === sale.id) setExpandedId(null);
     } finally {
       setBusyId(null);
@@ -124,7 +153,11 @@ export default function SalesHistoryPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="search-input"
           />
-          <span className="record-count">{filtered.length} record{filtered.length !== 1 ? 's' : ''}</span>
+          <span className="record-count">
+            {hasMore
+              ? `${filtered.length}+ record${filtered.length !== 1 ? 's' : ''}`
+              : `${filtered.length} record${filtered.length !== 1 ? 's' : ''}`}
+          </span>
         </div>
 
         {loading && <div className="db-loading">Loading…</div>}
@@ -231,6 +264,14 @@ export default function SalesHistoryPage() {
               </table>
             </div>
           )
+        )}
+
+        {!loading && !error && hasMore && (
+          <div style={{ textAlign: 'center', padding: '1rem' }}>
+            <button type="button" className="btn-secondary" onClick={loadMore} disabled={loadingMore}>
+              {loadingMore ? 'Loading more sales…' : `Load more sales (loaded ${sales.length})`}
+            </button>
+          </div>
         )}
       </div>
 

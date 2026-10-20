@@ -15,7 +15,7 @@ const unauthenticated = (message = 'Sign in required.') => new HttpsError('unaut
 
 const VALID_CODES = new Set([
   'ok', 'cancelled', 'unknown', 'invalid-argument', 'deadline-exceeded',
-  'already-exists', 'permission-denied', 'resource-exhausted', 'failed-precondition',
+  'not-found', 'already-exists', 'permission-denied', 'resource-exhausted', 'failed-precondition',
   'aborted', 'out-of-range', 'unimplemented', 'internal', 'unavailable', 'unauthenticated',
 ]);
 

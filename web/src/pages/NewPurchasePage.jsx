@@ -6,12 +6,40 @@ import { call, friendlyFunctionMessage } from '../lib/functions';
 import { formatRWF, parseToCents } from '../lib/money';
 import getBusinessDate from '../lib/businessDate';
 
+const EMPTY_ITEM = { productId: '', quantity: 1, unitCost: '' };
+
+// Validates the purchase rows and drops rows where nothing was selected, so an
+// extra untouched line can never block a purchase (the per-row delete control
+// was intentionally removed from this page). Rows with a product selected must
+// still carry a valid cost and quantity, and each product may appear once.
+export function preparePurchaseItems(items) {
+  const chosen = items.filter((item) => item.productId);
+  if (chosen.length === 0) throw new Error('Select at least one product.');
+  const seen = new Set();
+  return chosen.map((item) => {
+    if (seen.has(item.productId)) {
+      throw new Error('The same product is on more than one line. Combine the quantities into a single line.');
+    }
+    seen.add(item.productId);
+    const unitCostCents = parseToCents(item.unitCost);
+    if (!Number.isSafeInteger(unitCostCents)) throw new Error('Each item needs a valid unit cost.');
+    const quantity = Number(item.quantity);
+    if (!Number.isSafeInteger(quantity) || quantity <= 0) throw new Error('Quantities must be positive whole numbers.');
+    return { productId: item.productId, quantity, unitCostCents };
+  });
+}
+
+export function buildPurchasePayload(items, businessDate, clientRequestId) {
+  if (!clientRequestId) throw new Error('A unique client request id is required.');
+  return { items: preparePurchaseItems(items), businessDate, clientRequestId };
+}
+
 export default function NewPurchasePage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const isSeller = user?.role === 'seller';
   const [purchaseDate, setPurchaseDate] = useState(getBusinessDate());
-  const [items, setItems] = useState([{ productId: '', quantity: 1, unitCost: '' }]);
+  const [items, setItems] = useState([EMPTY_ITEM]);
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -38,8 +66,7 @@ export default function NewPurchasePage() {
   const handleChange = (index, field, value) =>
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
 
-  const addItem = () => setItems((prev) => [...prev, { productId: '', quantity: 1, unitCost: '' }]);
-  const removeItem = (index) => setItems((prev) => prev.filter((_, i) => i !== index));
+  const addItem = () => setItems((prev) => [...prev, EMPTY_ITEM]);
 
   const totalCents = items.reduce((sum, item) => sum + (parseToCents(item.unitCost) || 0) * (Number(item.quantity) || 0), 0);
 
@@ -49,20 +76,14 @@ export default function NewPurchasePage() {
     setSuccess(null);
     setSubmitting(true);
     try {
-      const payloadItems = items
-        .filter((i) => i.productId)
-        .map((i) => {
-          const unitCostCents = parseToCents(i.unitCost);
-          if (!Number.isSafeInteger(unitCostCents)) throw new Error('Each item needs a valid unit cost.');
-          const quantity = Number(i.quantity);
-          if (!Number.isSafeInteger(quantity) || quantity <= 0) throw new Error('Quantities must be positive whole numbers.');
-          return { productId: i.productId, quantity, unitCostCents };
-        });
-      await call('createPurchase', { items: payloadItems, businessDate: purchaseDate });
+      const payload = buildPurchasePayload(items, purchaseDate, crypto.randomUUID());
+      await call('createPurchase', payload);
       setSuccess('Purchase recorded! Stock updated.');
-      setItems([{ productId: '', quantity: 1, unitCost: '' }]);
+      setItems([EMPTY_ITEM]);
       setPurchaseDate(getBusinessDate());
-      setProducts(await loadProducts());
+      loadProducts()
+        .then(setProducts)
+        .catch(() => {});
     } catch (err) {
       setError(friendlyFunctionMessage(err));
     } finally {
@@ -86,7 +107,6 @@ export default function NewPurchasePage() {
         <div className="inner-page-header">
           <div className="seller-page-actions">
             <button type="button" className="back-btn" onClick={() => navigate('/dashboard')}>← Dashboard</button>
-            <button type="button" className="seller-logout-btn" onClick={() => { logout(); navigate('/login'); }}>Logout</button>
           </div>
           <h1>New Purchase</h1>
           <p className="page-sub">Record incoming stock. Quantities will be updated automatically.</p>
@@ -113,7 +133,7 @@ export default function NewPurchasePage() {
                       <div className="sale-item-fields">
                         <div className="field-group" style={{ flex: 2 }}>
                           <label>Product</label>
-                          <select value={item.productId} onChange={(e) => handleProductChange(index, e.target.value)} required>
+                          <select value={item.productId} onChange={(e) => handleProductChange(index, e.target.value)}>
                             <option value="">— Select product —</option>
                             {products.map((p) => (
                               <option key={p.id} value={p.id}>
@@ -126,13 +146,13 @@ export default function NewPurchasePage() {
                         <div className="field-group">
                           <label>Qty</label>
                           <input type="number" min="1" step="1" value={item.quantity}
-                            onChange={(e) => handleChange(index, 'quantity', e.target.value)} required />
+                            onChange={(e) => handleChange(index, 'quantity', e.target.value)} />
                         </div>
 
                         <div className="field-group">
                           <label>Unit Cost (RWF)</label>
                           <input type="number" step="0.01" min="0" value={item.unitCost}
-                            onChange={(e) => handleChange(index, 'unitCost', e.target.value)} placeholder="0" required />
+                            onChange={(e) => handleChange(index, 'unitCost', e.target.value)} placeholder="0" />
                         </div>
 
                         <div className="field-group">
@@ -147,10 +167,6 @@ export default function NewPurchasePage() {
                         <div className="stock-hint">
                           Current stock: {product.quantity} {product.unit || 'pcs'} → After: {product.quantity + Number(item.quantity || 0)}
                         </div>
-                      )}
-
-                      {items.length > 1 && (
-                        <button type="button" className="remove-item-btn" onClick={() => removeItem(index)}>✕ Remove</button>
                       )}
                     </div>
                   );

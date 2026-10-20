@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import { parseToCents } from '../lib/money';
 import getBusinessDate from '../lib/businessDate';
+import { bumpDataRevision } from '../lib/queryCache';
 
 export default function AddExpensePage() {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ export default function AddExpensePage() {
         userName: user.name,
         createdAt: serverTimestamp(),
       });
+      bumpDataRevision();
       setSuccess('Expense created successfully.');
       setForm({ title: '', category: '', amount: '', description: '', expenseDate: getBusinessDate() });
     } catch (submitError) {

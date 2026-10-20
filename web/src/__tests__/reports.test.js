@@ -70,6 +70,22 @@ describe('computeReport', () => {
     const report = computeReport([sale()], [{ amountCents: 99999 }], '2026-10-18', '2026-10-18');
     expect(report.netProfitCents).toBeLessThan(0);
   });
+
+  it('handles an expenses-only period (no sales at all)', () => {
+    const report = computeReport([], [{ amountCents: 2500 }], '2026-10-18', '2026-10-18');
+    expect(report.transactions).toBe(0);
+    expect(report.totalSalesCents).toBe(0);
+    expect(report.expensesCents).toBe(2500);
+    expect(report.netProfitCents).toBe(-2500);
+    expect(report.topProducts).toEqual([]);
+  });
+
+  it('keeps item-less sales as transactions without product rows', () => {
+    const report = computeReport([sale({ items: [] })], [], '2026-10-18', '2026-10-18');
+    expect(report.transactions).toBe(1);
+    expect(report.itemsSold).toBe(0);
+    expect(report.topProducts).toEqual([]);
+  });
 });
 
 describe('periodRange', () => {

@@ -123,6 +123,28 @@ describe('express server', () => {
     assert.equal(body.error.code, 'not-found');
   });
 
+  it('maps a handler not-found error to 404 (deleteSale on a missing sale)', async () => {
+    const res = await post('/api/deleteSale', {
+      token: 'token-admin',
+      body: { data: { saleId: 'no-such-sale' } },
+    });
+    assert.equal(res.status, 404);
+    const body = await res.json();
+    assert.equal(body.error.code, 'not-found');
+    assert.match(body.error.message, /not found/i);
+  });
+
+  it('maps requireProductRef not-found errors to 404 (adjustStock on a missing product)', async () => {
+    const res = await post('/api/adjustStock', {
+      token: 'token-admin',
+      body: { data: { productId: 'missing-product', quantityChange: 1, reason: 'count' } },
+    });
+    assert.equal(res.status, 404);
+    const body = await res.json();
+    assert.equal(body.error.code, 'not-found');
+    assert.match(body.error.message, /product not found/i);
+  });
+
   it('rejects malformed JSON bodies', async () => {
     const res = await post('/api/createSale', { token: 'token-admin', body: '{not-json' });
     assert.equal(res.status, 400);

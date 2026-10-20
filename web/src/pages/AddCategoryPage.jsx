@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { bumpDataRevision } from '../lib/queryCache';
 
 export default function AddCategoryPage() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export default function AddCategoryPage() {
         name: trimmed,
         createdAt: serverTimestamp(),
       });
+      bumpDataRevision();
       setSuccess('Category created successfully.');
       setName('');
     } catch (e) {

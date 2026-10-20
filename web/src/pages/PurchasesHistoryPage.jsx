@@ -1,22 +1,49 @@
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listPurchases } from '../lib/collections';
 import { formatRWF } from '../lib/money';
+
+const PAGE_SIZE = 50;
 
 export default function PurchasesHistoryPage() {
   const navigate = useNavigate();
   const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const cursorRef = useRef(null);
   const [error, setError] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState('');
 
+  const applyFirstPage = (page) => {
+    setPurchases(page.purchases);
+    cursorRef.current = page.cursor;
+    setHasMore(page.hasMore);
+  };
+
   useEffect(() => {
-    listPurchases()
-      .then(setPurchases)
+    listPurchases({ pageSize: PAGE_SIZE })
+      .then(applyFirstPage)
       .catch((e) => setError(e?.message || 'Failed to load purchases'))
       .finally(() => setLoading(false));
   }, []);
+
+  const loadMore = async () => {
+    if (!cursorRef.current || loadingMore) return;
+    setLoadingMore(true);
+    setError(null);
+    try {
+      const page = await listPurchases({ pageSize: PAGE_SIZE, cursor: cursorRef.current });
+      setPurchases((prev) => [...prev, ...page.purchases]);
+      cursorRef.current = page.cursor;
+      setHasMore(page.hasMore);
+    } catch (e) {
+      setError(e?.message || 'Failed to load more purchases');
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const filtered = purchases.filter((p) =>
     !search || p.userName?.toLowerCase().includes(search.toLowerCase()) ||
@@ -42,7 +69,11 @@ export default function PurchasesHistoryPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="search-input"
           />
-          <span className="record-count">{filtered.length} record{filtered.length !== 1 ? 's' : ''}</span>
+          <span className="record-count">
+            {hasMore
+              ? `${filtered.length}+ record${filtered.length !== 1 ? 's' : ''}`
+              : `${filtered.length} record${filtered.length !== 1 ? 's' : ''}`}
+          </span>
         </div>
 
         {loading && <div className="db-loading">Loading…</div>}
@@ -98,6 +129,14 @@ export default function PurchasesHistoryPage() {
               </table>
             </div>
           )
+        )}
+
+        {!loading && !error && hasMore && (
+          <div style={{ textAlign: 'center', padding: '1rem' }}>
+            <button type="button" className="btn-secondary" onClick={loadMore} disabled={loadingMore}>
+              {loadingMore ? 'Loading more purchases…' : `Load more purchases (loaded ${purchases.length})`}
+            </button>
+          </div>
         )}
       </div>
     </div>
