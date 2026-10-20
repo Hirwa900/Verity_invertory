@@ -28,6 +28,7 @@ const adapt = (handler) =>
 exports.createSale = adapt(require('./calls/createSale')(deps));
 exports.archiveSale = adapt(require('./calls/archiveSale')(deps));
 exports.restoreSale = adapt(require('./calls/restoreSale')(deps));
+exports.deleteSale = adapt(require('./calls/deleteSale')(deps));
 exports.createPurchase = adapt(require('./calls/createPurchase')(deps));
 exports.adjustStock = adapt(require('./calls/adjustStock')(deps));
 exports.createAppUser = adapt(require('./calls/createAppUser')(deps));

@@ -25,6 +25,7 @@ const OPERATIONS = [
   'createSale',
   'archiveSale',
   'restoreSale',
+  'deleteSale',
   'createPurchase',
   'adjustStock',
   'createAppUser',

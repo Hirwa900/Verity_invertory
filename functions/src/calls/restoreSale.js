@@ -53,7 +53,14 @@ module.exports = ({ db, now }) => async (data, context) => {
       createdAt: now(),
     });
 
-    t.update(saleRef, { isActive: true, archivedAt: null });
+    t.update(saleRef, {
+      isActive: true,
+      archivedAt: null,
+      status: null,
+      deletedAt: null,
+      deletedBy: null,
+      deletedByName: null,
+    });
     return { saleId };
   });
 };

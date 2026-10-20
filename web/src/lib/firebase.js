@@ -1,6 +1,9 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import {
+  getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  clearIndexedDbPersistence, terminate,
+} from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
 
 const env = import.meta.env || {};
@@ -23,11 +26,47 @@ let auth = null;
 let db = null;
 let functions = null;
 
+const persistentCacheSettings = () => ({
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+});
+
+const createFirestore = () => {
+  try {
+    return initializeFirestore(app, persistentCacheSettings());
+  } catch {
+    try {
+      return getFirestore(app);
+    } catch {
+      return null;
+    }
+  }
+};
+
 if (isFirebaseConfigured) {
   app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   auth = getAuth(app);
-  db = getFirestore(app);
+  db = createFirestore();
   functions = getFunctions(app);
+}
+
+let clearInFlight = null;
+
+export function clearPersistedData() {
+  if (!app || !db) return Promise.resolve();
+  if (clearInFlight) return clearInFlight;
+  clearInFlight = (async () => {
+    const previous = db;
+    try {
+      await terminate(previous);
+      await clearIndexedDbPersistence(previous);
+    } catch (e) {
+      console.warn('Unable to clear persisted Firestore cache:', e);
+    }
+    db = createFirestore();
+  })().finally(() => {
+    clearInFlight = null;
+  });
+  return clearInFlight;
 }
 
 export { app, auth, db, functions };

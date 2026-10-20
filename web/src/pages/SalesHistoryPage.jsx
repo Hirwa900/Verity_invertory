@@ -10,17 +10,24 @@ function fmtDate(d) {
   return String(d);
 }
 
+// UI gate for destructive sale actions. The backend re-checks the admin role
+// on every deleteSale call, so hiding the button is never the security boundary.
+export function canDeleteSales(user) {
+  return user?.role === 'admin';
+}
+
 export default function SalesHistoryPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const isSeller = user?.role === 'seller';
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = canDeleteSales(user);
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [busyId, setBusyId] = useState(null);
   const [confirmingId, setConfirmingId] = useState(null);
+  const [deletingSale, setDeletingSale] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState('');
 
@@ -32,6 +39,44 @@ export default function SalesHistoryPage() {
       .catch((e) => setError(e?.message || 'Failed to load sales'))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!deletingSale) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setDeletingSale(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [deletingSale]);
+
+  const openDeleteDialog = (sale) => {
+    setError(null);
+    setSuccess(null);
+    setDeletingSale(sale);
+  };
+
+  const deleteSale = async (sale) => {
+    setError(null);
+    setSuccess(null);
+    setBusyId(sale.id);
+    try {
+      await call('deleteSale', { saleId: sale.id });
+      setDeletingSale(null);
+      if (expandedId === sale.id) setExpandedId(null);
+      const refreshed = await load();
+      setSales(refreshed);
+      setSuccess('Sale deleted and reversed. Stock was restored, and reports, dashboard, and stock views now exclude it.');
+    } catch (e) {
+      // Also covers a sale already reversed by someone else: refresh so the
+      // list reflects the committed state instead of offering a stale row.
+      setDeletingSale(null);
+      setError(friendlyFunctionMessage(e));
+      load().then(setSales).catch(() => {});
+      if (expandedId === sale.id) setExpandedId(null);
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   const archiveSale = async (sale) => {
     setError(null);
@@ -110,41 +155,53 @@ export default function SalesHistoryPage() {
                         <td>{s.userName}</td>
                         <td className="amount-cell">RWF {formatRWF(s.totalCents, { decimals: 0 })}</td>
                         <td>
-                          <button type="button" className="expand-btn" onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}>
-                            {expandedId === s.id ? '▲ Hide' : '▼ View Items'}
-                          </button>
-                          {isAdmin && (
-                            confirmingId === s.id ? (
-                              <span className="delete-confirm">
-                                <span className="delete-confirm-text">Archive #{s.id} &amp; restore stock?</span>
+                          <span className="detail-actions">
+                            <button type="button" className="expand-btn" onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}>
+                              {expandedId === s.id ? '▲ Hide' : '▼ View Items'}
+                            </button>
+                            {isAdmin && (
+                              confirmingId === s.id ? (
+                                <span className="delete-confirm">
+                                  <span className="delete-confirm-text">Archive #{s.id} &amp; restore stock?</span>
+                                  <button
+                                    type="button"
+                                    className="btn-action btn-action-delete"
+                                    disabled={busyId === s.id}
+                                    onClick={() => archiveSale(s)}
+                                  >
+                                    {busyId === s.id ? 'Archiving…' : 'Yes, archive'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-action btn-action-cancel"
+                                    disabled={busyId === s.id}
+                                    onClick={() => setConfirmingId(null)}
+                                  >
+                                    Cancel
+                                  </button>
+                                </span>
+                              ) : (
                                 <button
                                   type="button"
                                   className="btn-action btn-action-delete"
                                   disabled={busyId === s.id}
-                                  onClick={() => archiveSale(s)}
+                                  onClick={() => { setError(null); setSuccess(null); setConfirmingId(s.id); }}
                                 >
-                                  {busyId === s.id ? 'Archiving…' : 'Yes, archive'}
+                                  Archive
                                 </button>
-                                <button
-                                  type="button"
-                                  className="btn-action btn-action-cancel"
-                                  disabled={busyId === s.id}
-                                  onClick={() => setConfirmingId(null)}
-                                >
-                                  Cancel
-                                </button>
-                              </span>
-                            ) : (
+                              )
+                            )}
+                            {canDeleteSales(user) && (
                               <button
                                 type="button"
                                 className="btn-action btn-action-delete"
                                 disabled={busyId === s.id}
-                                onClick={() => { setError(null); setSuccess(null); setConfirmingId(s.id); }}
+                                onClick={() => openDeleteDialog(s)}
                               >
-                                Archive
+                                Delete
                               </button>
-                            )
-                          )}
+                            )}
+                          </span>
                         </td>
                       </tr>
                       {expandedId === s.id && (
@@ -176,6 +233,48 @@ export default function SalesHistoryPage() {
           )
         )}
       </div>
+
+      {deletingSale && (
+        <div className="modal-overlay" onClick={() => setDeletingSale(null)}>
+          <div
+            className="modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-sale-heading"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="delete-sale-heading">Delete this sale?</h2>
+            <p className="modal-body-text">
+              Sale <strong>#{deletingSale.id}</strong> will be reversed: its quantities are returned
+              to stock and it is excluded from the dashboard and from daily, weekly, monthly, and
+              yearly reports. The sale record is kept for audit purposes.
+            </p>
+            <div className="modal-sale-summary">
+              <span>{fmtDate(deletingSale.businessDate)}</span>
+              <span>{deletingSale.userName}</span>
+              <span>RWF {formatRWF(deletingSale.totalCents, { decimals: 0 })}</span>
+            </div>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn-action btn-action-cancel"
+                disabled={busyId === deletingSale.id}
+                onClick={() => setDeletingSale(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn-action btn-action-delete"
+                disabled={busyId === deletingSale.id}
+                onClick={() => deleteSale(deletingSale)}
+              >
+                {busyId === deletingSale.id ? 'Deleting…' : 'Yes, delete sale'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -36,7 +36,7 @@ All money is stored as **integer cents** (`sellingPriceCents`, `totalCents`, ...
 | `verity_users/{uid}` | name, email, role (admin/seller), isActive | `createAppUser` / `updateAppUser` functions |
 | `verity_categories/{id}` | name | Admin client (rules-enforced) |
 | `verity_products/{id}` | name, categoryId, sku, unit, buyingPriceCents, sellingPriceCents, **quantity**, minimumQuantity, isActive | Admin client for catalog fields; `quantity` only via functions |
-| `verity_sales/{id}` | userId, userName, businessDate, totalCents, isActive, items[] | `createSale` / `archiveSale` / `restoreSale` functions |
+| `verity_sales/{id}` | userId, userName, businessDate, totalCents, isActive, items[], status, deletedBy, deletedAt | `createSale` / `archiveSale` / `restoreSale` / `deleteSale` functions |
 | `verity_purchases/{id}` | userId, userName, businessDate, totalCents, items[] | `createPurchase` function |
 | `verity_stockMovements/{id}` | productId, type (SALE/PURCHASE/RETURN/ADJUSTMENT), quantity, referenceId, note | Functions only |
 | `verity_expenses/{id}` | title, category, amountCents, businessDate | Admin client (rules-enforced) |
@@ -48,7 +48,7 @@ Sales and purchases store embedded `items[]` arrays (product snapshot at time of
 
 ## Business operations (callable functions or Render HTTP API)
 
-The same seven handlers are exposed two ways:
+The same eight handlers are exposed two ways:
 
 - **Render Free Express API** (`functions/src/server.js`) — the free deployment path.
   `POST /api/<operation>` with `Authorization: Bearer <Firebase ID token>`,
@@ -61,7 +61,8 @@ The same seven handlers are exposed two ways:
 |---|---|---|
 | `createSale` | admin, seller | Validates stock in a transaction, decrements quantity, writes sale + SALE movements + audit + idempotency doc. Requires `clientRequestId` (client sends `crypto.randomUUID()`) |
 | `archiveSale` | admin | Sets `isActive=false`, returns stock, logs RETURN movements (reversible "delete") |
-| `restoreSale` | admin | Re-activates an archived sale if stock allows |
+| `restoreSale` | admin | Re-activates an archived or deleted sale if stock allows, clearing any reversal markers (`status`, `deletedBy`, `deletedAt`) |
+| `deleteSale` | admin | Secure "Delete Sale": soft-deletes a sale as a reversal — sets `isActive=false` + `status='reversed'` with `deletedBy`/`deletedByName`/`deletedAt` audit fields on the sale, returns stock, logs RETURN movements and a `sale.delete` audit event, all in one transaction. An already-reversed sale is rejected with `already-exists`, so retries never restore stock twice. The sale record is never erased |
 | `createPurchase` | admin | Increments stock, updates buying price, logs PURCHASE movements. Requires `clientRequestId`; the idempotency record is written in the same transaction as the purchase and stock movements |
 | `adjustStock` | admin | Signed quantity change with reason; never allows negative stock |
 | `createAppUser` | admin | Creates the Auth user + role claim + `verity_users` profile. If no password is given, returns a generated password **once** (never logged) |
@@ -77,8 +78,8 @@ The same seven handlers are exposed two ways:
 
 ## Tests
 
-- `functions/`: **48 tests** (`npm test` in `functions/`, all passing) — in-memory mock Firestore (with Firestore-style optimistic-concurrency retries) + mock Auth; cover createSale happy path, insufficient stock, duplicate/concurrent idempotency for sales **and purchases**, purchase idempotency, archive/restore, adjustment bounds, role/permission denials, claim/profile mismatch rejection, the Express API layer (health, bearer auth, CORS, error mapping, idempotency), and concurrent last-admin demotion/deactivation races (exactly one wins, one active admin always remains).
-- `web/`: **14 tests** (`npm test` in `web/`) — money helpers, Kigali business date, report computation, login error mapping.
+- `functions/`: **56 tests** (`npm test` in `functions/`, all passing) — in-memory mock Firestore (with Firestore-style optimistic-concurrency retries) + mock Auth; cover createSale happy path, insufficient stock, duplicate/concurrent idempotency for sales **and purchases**, purchase idempotency, archive/restore, deleteSale (admin-only reversal with stock restoration, audit trail, repeat-delete rejection, claim/profile mismatch), adjustment bounds, role/permission denials, claim/profile mismatch rejection, the Express API layer (health, bearer auth, CORS, error mapping, idempotency, deleteSale over HTTP), and concurrent last-admin demotion/deactivation races (exactly one wins, one active admin always remains).
+- `web/`: **17 tests** (`npm test` in `web/`) — money helpers, Kigali business date, report computation (including exclusion of archived **and deleted/reversed** sales), login error mapping, admin-only delete-button gating.
 - `web/` **Security Rules integration tests** (`web/rules-tests/firestore.rules.test.js`, **63 assertions** across 16 tests / 4 suites): anonymous access, admin access, seller access, cross-user sales reads, client stock/price manipulation, protected collections, claim/profile mismatch, inactive accounts, and direct role-change attempts. These use `@firebase/rules-unit-testing` against the **Firestore emulator** and are run with:
   ```bash
   # Prerequisites: Java (the emulator requires it), Node 20+

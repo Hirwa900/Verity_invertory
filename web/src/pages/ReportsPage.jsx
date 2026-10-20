@@ -12,7 +12,7 @@ const PERIODS = [
   { key: 'custom', label: 'Custom' },
 ];
 
-function periodRange(period) {
+export function periodRange(period) {
   const today = getBusinessDate();
   const pad = (n) => String(n).padStart(2, '0');
   const d = new Date();
@@ -92,7 +92,7 @@ export default function ReportsPage() {
         ? { startDate: startOverride, endDate: endOverride }
         : periodRange(p);
       const [sales, expenses] = await Promise.all([
-        listSales({ activeOnly: false }),
+        listSales({ activeOnly: true, startDate: range.startDate, endDate: range.endDate }),
         listExpenses({ startDate: range.startDate, endDate: range.endDate }),
       ]);
       const inRange = sales.filter((s) =>

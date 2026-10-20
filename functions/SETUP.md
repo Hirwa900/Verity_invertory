@@ -1,7 +1,7 @@
 # VERITY Inventory — Express API setup (free-tier, no Blaze plan)
 
 The operations in `functions/src/calls/` (createSale, archiveSale, restoreSale,
-createPurchase, adjustStock, createAppUser, updateAppUser) are exposed two ways
+deleteSale, createPurchase, adjustStock, createAppUser, updateAppUser) are exposed two ways
 from the **same handlers**, so role checks, transactions, stock validation,
 audit logging, and idempotency behave identically:
 
@@ -142,7 +142,7 @@ POST /api/<operation>   Authorization: Bearer <ID token>
 | Operation | Allowed roles |
 |---|---|
 | `createSale` | admin, seller |
-| `archiveSale`, `restoreSale` | admin |
+| `archiveSale`, `restoreSale`, `deleteSale` | admin |
 | `createPurchase`, `adjustStock` | admin |
 | `createAppUser`, `updateAppUser` | admin |
 

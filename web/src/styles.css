@@ -1553,6 +1553,67 @@ body {
   color: #b91c1c;
 }
 
+.detail-actions {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.modal-dialog {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+}
+
+.modal-dialog h2 {
+  font-size: 1.1rem;
+  color: #b91c1c;
+  margin-bottom: 0.6rem;
+}
+
+.modal-body-text {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.modal-sale-summary {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0.9rem 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
 .category-link {
   display: inline-flex;
   align-items: center;

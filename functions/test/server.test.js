@@ -3,9 +3,10 @@ const assert = require('node:assert/strict');
 
 const { createApp, OPERATIONS } = require('../src/server');
 const createSale = require('../src/calls/createSale');
+const deleteSale = require('../src/calls/deleteSale');
 const adjustStock = require('../src/calls/adjustStock');
 const {
-  createFakeDb, fixedNow, seedSeller, seedAdmin, seedProduct, readProduct,
+  createFakeDb, fixedNow, seedSeller, seedAdmin, seedProduct, readProduct, read,
 } = require('./helpers/seed');
 
 const VALID_TOKENS = {
@@ -24,6 +25,7 @@ describe('express server', () => {
   const deps = { db, auth: {}, now: fixedNow };
   const handlers = {
     createSale: createSale(deps),
+    deleteSale: deleteSale(deps),
     adjustStock: adjustStock(deps),
   };
   const resolve = () => ({ ready: true, error: null, handlers });
@@ -146,9 +148,41 @@ describe('express server', () => {
 
   it('exposes only the documented operations', () => {
     assert.deepEqual(OPERATIONS, [
-      'createSale', 'archiveSale', 'restoreSale', 'createPurchase',
+      'createSale', 'archiveSale', 'restoreSale', 'deleteSale', 'createPurchase',
       'adjustStock', 'createAppUser', 'updateAppUser',
     ]);
+  });
+
+  it('serves deleteSale to admins only and blocks repeated reversals over HTTP', async () => {
+    seedProduct(db, 'p-srv-del', { quantity: 10 });
+    const created = await post('/api/createSale', {
+      token: 'token-seller',
+      body: { data: { items: [{ productId: 'p-srv-del', quantity: 2 }], clientRequestId: 'req-srv-del1' } },
+    });
+    assert.equal(created.status, 200);
+    const { saleId } = (await created.json()).data;
+    assert.equal(readProduct(db, 'p-srv-del').quantity, 8);
+
+    const denied = await post('/api/deleteSale', { token: 'token-seller', body: { data: { saleId } } });
+    assert.equal(denied.status, 403);
+    assert.equal((await denied.json()).error.code, 'permission-denied');
+    assert.equal(readProduct(db, 'p-srv-del').quantity, 8);
+    assert.equal(read(db, `verity_sales/${saleId}`).isActive, true);
+
+    const allowed = await post('/api/deleteSale', { token: 'token-admin', body: { data: { saleId } } });
+    assert.equal(allowed.status, 200);
+    const body = await allowed.json();
+    assert.equal(body.data.status, 'reversed');
+    assert.equal(readProduct(db, 'p-srv-del').quantity, 10);
+    const sale = read(db, `verity_sales/${saleId}`);
+    assert.equal(sale.isActive, false);
+    assert.equal(sale.status, 'reversed');
+    assert.equal(sale.deletedBy, 'admin1');
+
+    const repeated = await post('/api/deleteSale', { token: 'token-admin', body: { data: { saleId } } });
+    assert.equal(repeated.status, 409);
+    assert.equal((await repeated.json()).error.code, 'already-exists');
+    assert.equal(readProduct(db, 'p-srv-del').quantity, 10);
   });
 
   it('answers 503 before authentication when no credentials are configured', async (t) => {

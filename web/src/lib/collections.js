@@ -18,11 +18,21 @@ export async function listCategories() {
   return snapList(snapshot);
 }
 
-export async function listSales({ userId = null, activeOnly = true } = {}) {
-  const constraints = [];
-  if (activeOnly) constraints.push(where('isActive', '==', true));
-  if (userId) constraints.push(where('userId', '==', userId));
-  constraints.push(orderBy('businessDate', 'desc'));
+export function salesQueryPlan({ userId = null, activeOnly = true, startDate = null, endDate = null } = {}) {
+  const filters = [];
+  if (activeOnly) filters.push({ field: 'isActive', op: '==', value: true });
+  if (userId) filters.push({ field: 'userId', op: '==', value: userId });
+  if (startDate) filters.push({ field: 'businessDate', op: '>=', value: startDate });
+  if (endDate) filters.push({ field: 'businessDate', op: '<=', value: endDate });
+  return { filters, sort: { field: 'businessDate', direction: 'desc' } };
+}
+
+export async function listSales(options = {}) {
+  const { filters, sort } = salesQueryPlan(options);
+  const constraints = [
+    ...filters.map((f) => where(f.field, f.op, f.value)),
+    orderBy(sort.field, sort.direction),
+  ];
   const snapshot = await getDocs(query(collection(db, 'verity_sales'), ...constraints));
   return snapList(snapshot);
 }

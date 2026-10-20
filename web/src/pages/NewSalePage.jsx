@@ -66,7 +66,9 @@ export default function NewSalePage() {
       setSuccess('Sale recorded successfully!');
       setItems([{ productId: '', quantity: 1 }]);
       setSaleDate(getBusinessDate());
-      setProducts(await loadProducts());
+      loadProducts()
+        .then(setProducts)
+        .catch(() => {});
     } catch (err) {
       setError(friendlyFunctionMessage(err));
     } finally {
